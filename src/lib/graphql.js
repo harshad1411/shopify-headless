@@ -96,9 +96,21 @@ export const GET_CART_DATA = `
     query GetCart($id: ID!) {
       cart(id: $id) {
         id
+        totalQuantity
         lines(first: 99) {
             edges{
               node{
+                merchandise{
+                  ... on ProductVariant{
+                    id
+                    image{
+                      url
+                    }
+                    product{
+                      title
+                    }
+                  }
+                }
                 cost{
                   amountPerQuantity{
                     amount

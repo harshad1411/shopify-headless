@@ -8,15 +8,18 @@ import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import {CART_CREATE_MUTATION, GET_CART_DATA} from './lib/graphql';
 import { useState, useEffect } from 'react';
 import { shopifyFetch } from './lib/utils';
+import SideCart from './components/SideCart';
 // import Product from './Product';
 function App() {
   const [cart, setCart] = useState([]);
-
+  const [showCart, setShowCart] = useState(false);
+  
   useEffect(() => {
       createCart();
-  }, []);
+  }, [cart?.totalQuantity]);
+  
 
-  const getCartData = async (id) =>{
+  const renderCartData = async (id) =>{
     const variables = {id: id};
     const response = await shopifyFetch(GET_CART_DATA, variables);
     const data = await response.json();
@@ -26,13 +29,13 @@ function App() {
   const createCart = async () => {
     const locaCartId = localStorage.getItem('cartId');
     if (locaCartId) {
-        await getCartData(locaCartId);
+        await renderCartData(locaCartId);
     } else {
       const response = await shopifyFetch(CART_CREATE_MUTATION, {input: {}});
       const data = await response.json();
       const newCartId = data.data.cartCreate.cart.id;
       localStorage.setItem('cartId', newCartId);
-      await getCartData(newCartId);
+      await renderCartData(newCartId);
     }
     return cart;
   }
@@ -40,14 +43,15 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Header />
+      <Header cartCount={cart?.totalQuantity} setShowCart={setShowCart}/>
+      {showCart && <SideCart cart={cart} setShowCart={setShowCart} />}
       <div className="">
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/collections/:handle" element={<Collection />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/products/:handle" element={<Product cartId={cart?.id} />} />
+        <Route path="/products/:handle" element={<Product setShowCart={setShowCart} renderCartData={renderCartData} cartId={cart?.id} />} />
       </Routes>
       </div>
     </BrowserRouter>

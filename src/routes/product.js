@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { shopifyFetch } from '../lib/utils';
 import { GQL_QUERY_PRODUCT, CART_LINE_ADD } from '../lib/graphql';
 
-function Product({cartId}) {
+function Product({renderCartData, cartId, setShowCart}) {
     const [product, setProduct] = useState(null);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const { handle } = useParams();
@@ -67,7 +67,9 @@ function Product({cartId}) {
         console.log(selectedVariant);
         const response = await shopifyFetch(CART_LINE_ADD, {cartId: cartId, lines: [{merchandiseId: selectedVariant.id, quantity: 1}]});
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
+        renderCartData(cartId);
+        setShowCart(true);
     }
     if (!product || !selectedVariant) return <div>Loading...</div>;
     return (
