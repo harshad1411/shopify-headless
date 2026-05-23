@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { shopifyFetch } from '../lib/utils';
+import { shopifyFetch, addToCart } from '../lib/utils';
 import { GQL_QUERY_PRODUCT, CART_LINE_ADD } from '../lib/graphql';
 
 function Product({renderCartData, cartId, setShowCart}) {
@@ -64,11 +64,9 @@ function Product({renderCartData, cartId, setShowCart}) {
         // setSelectedVariant({...selectedVariant, selectedOptions: [...selectedVariant.selectedOptions, {name: index, value: value}]});
     }
     const handleAddToCart = async() => {
-        console.log(selectedVariant);
-        const response = await shopifyFetch(CART_LINE_ADD, {cartId: cartId, lines: [{merchandiseId: selectedVariant.id, quantity: 1}]});
-        const data = await response.json();
-        // console.log(data);
-        renderCartData(cartId);
+        const payload = {cartId: cartId, lines: [{merchandiseId: selectedVariant.id, quantity: 1}]}
+        const data = await addToCart(payload);
+        renderCartData(data.data.cartLinesAdd.cart.id);
         setShowCart(true);
     }
     if (!product || !selectedVariant) return <div>Loading...</div>;

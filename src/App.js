@@ -11,47 +11,57 @@ import { shopifyFetch } from './lib/utils';
 import SideCart from './components/SideCart';
 // import Product from './Product';
 function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState({});
   const [showCart, setShowCart] = useState(false);
   
   useEffect(() => {
-      createCart();
+      setCartData();
   }, [cart?.totalQuantity]);
   
 
-  const renderCartData = async (id) =>{
+  const initCart = async (id) =>{
     const variables = {id: id};
     const response = await shopifyFetch(GET_CART_DATA, variables);
     const data = await response.json();
     console.log("cart data  ",data);
     setCart(data.data.cart);
   }
-  const createCart = async () => {
+
+  const setCartData = async () => {
     const locaCartId = localStorage.getItem('cartId');
     if (locaCartId) {
-        await renderCartData(locaCartId);
+        await initCart(locaCartId);
     } else {
-      const response = await shopifyFetch(CART_CREATE_MUTATION, {input: {}});
-      const data = await response.json();
+      const data = await createCart();
       const newCartId = data.data.cartCreate.cart.id;
       localStorage.setItem('cartId', newCartId);
-      await renderCartData(newCartId);
+      await initCart(newCartId);
     }
     return cart;
   }
 
 
+  const createCart = async () => {
+    try {
+      const response = await shopifyFetch(CART_CREATE_MUTATION, {input: {}});
+      const data = await response.json();
+      return data;
+    }catch(error){
+      console.error('Error:', error);
+    }
+  }
+
   return (
     <BrowserRouter>
       <Header cartCount={cart?.totalQuantity} setShowCart={setShowCart}/>
-      {showCart && <SideCart cart={cart} setShowCart={setShowCart} />}
+      {showCart && <SideCart renderCartData={initCart} cart={cart} setShowCart={setShowCart} />}
       <div className="">
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/collections/:handle" element={<Collection />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/products/:handle" element={<Product setShowCart={setShowCart} renderCartData={renderCartData} cartId={cart?.id} />} />
+        <Route path="/products/:handle" element={<Product setShowCart={setShowCart} renderCartData={initCart} cartId={cart?.id} />} />
       </Routes>
       </div>
     </BrowserRouter>

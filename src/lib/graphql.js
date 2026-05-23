@@ -140,6 +140,26 @@ export const CART_LINE_ADD = `
     }
 `;
 
+export const CART_LINE_UPDATE = `
+    mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+        cartLinesUpdate(cartId: $cartId, lines: $lines) {
+            cart {
+                id
+            }
+        }
+    }
+`;
+
+export const CART_LINE_REMOVE = `
+    mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+        cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+            cart {
+                id
+            }
+        }
+    }
+`;
+
 export const GQL_QUERY_PRODUCT = `
     query GetProduct($handle: String!) {
       product(handle: $handle) {
