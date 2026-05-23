@@ -31,9 +31,7 @@ const CartLine = ({ line, renderCartData, id }) => {
             setQuantity(quantity + 1);
          
         } else {
-            if(quantity < 1) {
-                return;
-            }
+           
             setQuantity(quantity - 1);
         }
     }
